@@ -1,41 +1,54 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { formatTime } from '../../utils/calculations'
 
-export default function RestTimer({ duration = 90, onFinish, autoStart = true, color = '#00F0FF' }) {
+export default function RestTimer({ duration = 90, onFinish, color = '#00F0FF' }) {
   const [remaining, setRemaining] = useState(duration)
-  const [running, setRunning] = useState(autoStart)
-  const intervalRef = useRef(null)
+  const endTimeRef = useRef(Date.now() + duration * 1000)
+  const rafRef = useRef(null)
+  const finishedRef = useRef(false)
+  const onFinishRef = useRef(onFinish)
+  onFinishRef.current = onFinish
 
-  const pct = remaining / duration
-  const circumference = 2 * Math.PI * 54 // radius = 54
+  const tick = useCallback(() => {
+    const now = Date.now()
+    const left = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000))
+    setRemaining(left)
 
-  // Color transitions: green > yellow > red
-  const timerColor = pct > 0.5 ? '#00FF88' : pct > 0.2 ? '#FDCB6E' : '#FF3D5A'
+    if (left <= 0 && !finishedRef.current) {
+      finishedRef.current = true
+      onFinishRef.current?.()
+      return
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+  }, [])
 
   useEffect(() => {
-    if (running && remaining > 0) {
-      intervalRef.current = setInterval(() => {
-        setRemaining(r => {
-          if (r <= 1) {
-            setRunning(false)
-            onFinish?.()
-            return 0
-          }
-          return r - 1
-        })
-      }, 1000)
-      return () => clearInterval(intervalRef.current)
+    endTimeRef.current = Date.now() + duration * 1000
+    finishedRef.current = false
+    rafRef.current = requestAnimationFrame(tick)
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [running, remaining, onFinish])
+  }, [duration, tick])
+
+  const pct = remaining / duration
+  const circumference = 2 * Math.PI * 54
+
+  const timerColor = pct > 0.5 ? '#00FF88' : pct > 0.2 ? '#FDCB6E' : '#FF3D5A'
 
   function handleSkip() {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
     setRemaining(0)
-    setRunning(false)
-    onFinish?.()
+    if (!finishedRef.current) {
+      finishedRef.current = true
+      onFinishRef.current?.()
+    }
   }
 
   function handleAdjust(delta) {
+    endTimeRef.current += delta * 1000
     setRemaining(r => Math.max(0, r + delta))
   }
 
@@ -52,10 +65,8 @@ export default function RestTimer({ duration = 90, onFinish, autoStart = true, c
       {/* Circular timer */}
       <div className="relative flex h-32 w-32 items-center justify-center">
         <svg className="absolute" width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
-          {/* Background circle */}
           <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="4" />
-          {/* Progress circle */}
-          <motion.circle
+          <circle
             cx="60"
             cy="60"
             r="54"
@@ -64,13 +75,11 @@ export default function RestTimer({ duration = 90, onFinish, autoStart = true, c
             strokeWidth="4"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            animate={{ strokeDashoffset: circumference * (1 - pct) }}
-            transition={{ duration: 0.3 }}
-            style={{ filter: `drop-shadow(0 0 6px ${timerColor})` }}
+            strokeDashoffset={circumference * (1 - pct)}
+            style={{ filter: `drop-shadow(0 0 6px ${timerColor})`, transition: 'stroke-dashoffset 0.3s ease' }}
           />
         </svg>
 
-        {/* Time display */}
         <div className="text-center">
           <p className="font-mono text-3xl font-bold" style={{ color: timerColor, textShadow: `0 0 10px ${timerColor}55` }}>
             {formatTime(remaining)}
@@ -81,10 +90,7 @@ export default function RestTimer({ duration = 90, onFinish, autoStart = true, c
 
       {/* Controls */}
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => handleAdjust(-15)}
-          className="btn-ghost px-3 py-1.5 text-xs"
-        >
+        <button onClick={() => handleAdjust(-15)} className="btn-ghost px-3 py-1.5 text-xs">
           -15s
         </button>
         <button
@@ -93,10 +99,7 @@ export default function RestTimer({ duration = 90, onFinish, autoStart = true, c
         >
           Saltar
         </button>
-        <button
-          onClick={() => handleAdjust(15)}
-          className="btn-ghost px-3 py-1.5 text-xs"
-        >
+        <button onClick={() => handleAdjust(15)} className="btn-ghost px-3 py-1.5 text-xs">
           +15s
         </button>
       </div>
