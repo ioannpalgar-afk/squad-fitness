@@ -174,3 +174,45 @@ export const TIER_COLORS = {
   silver: { bg: '#C0C0C0', glow: 'rgba(192,192,192,0.3)' },
   gold: { bg: '#FFD700', glow: 'rgba(255,215,0,0.4)' },
 }
+
+// ============================================
+// GAMIFICATION - Ranks & Levels
+// ============================================
+
+export const RANKS = [
+  { id: 'rookie',  name: 'ROOKIE',  minLevel: 1,  maxLevel: 5,  color: '#8B8B8B', gradient: 'linear-gradient(135deg, #8B8B8B, #555568)', desc: 'Empezando el viaje' },
+  { id: 'chrome',  name: 'CHROME',  minLevel: 6,  maxLevel: 10, color: '#C0C0C0', gradient: 'linear-gradient(135deg, #C0C0C0, #E8E8E8)', desc: 'Construyendo hábitos' },
+  { id: 'cyber',   name: 'CYBER',   minLevel: 11, maxLevel: 15, color: '#00F0FF', gradient: 'linear-gradient(135deg, #00F0FF, #0088FF)', desc: 'Mejora consistente' },
+  { id: 'ghost',   name: 'GHOST',   minLevel: 16, maxLevel: 20, color: '#BF00FF', gradient: 'linear-gradient(135deg, #BF00FF, #8000CC)', desc: 'Disciplina de acero' },
+  { id: 'neural',  name: 'NEURAL',  minLevel: 21, maxLevel: 25, color: '#FFD700', gradient: 'linear-gradient(135deg, #FFD700, #FF8C00)', desc: 'Atleta completo' },
+  { id: 'apex',    name: 'APEX',    minLevel: 26, maxLevel: 30, color: '#FF3D5A', gradient: 'linear-gradient(135deg, #FF3D5A, #FF0044)', desc: 'Elite absoluta' },
+  { id: 'legend',  name: 'LEGEND',  minLevel: 31, maxLevel: 99, color: '#FF8C00', gradient: 'linear-gradient(135deg, #FF8C00, #FFD700, #FF3D5A)', desc: 'Leyenda viviente' },
+]
+
+export function getRankForLevel(level) {
+  return RANKS.find(r => level >= r.minLevel && level <= r.maxLevel) || RANKS[RANKS.length - 1]
+}
+
+// Milestones (achievements that give XP and mark progression)
+export const MILESTONES = [
+  { id: 'first-workout',     xpReward: 100,  label: 'Primer entreno',            check: s => s.workoutCount >= 1 },
+  { id: 'workouts-10',       xpReward: 200,  label: '10 entrenos',               check: s => s.workoutCount >= 10 },
+  { id: 'workouts-50',       xpReward: 500,  label: '50 entrenos',               check: s => s.workoutCount >= 50 },
+  { id: 'workouts-100',      xpReward: 1000, label: '100 entrenos',              check: s => s.workoutCount >= 100 },
+  { id: 'workouts-200',      xpReward: 2000, label: '200 entrenos',              check: s => s.workoutCount >= 200 },
+  { id: 'streak-7',          xpReward: 300,  label: 'Racha de 7 días',           check: s => s.streak >= 7 },
+  { id: 'streak-30',         xpReward: 1000, label: 'Racha de 30 días',          check: s => s.streak >= 30 },
+  { id: 'streak-100',        xpReward: 3000, label: 'Racha de 100 días',         check: s => s.streak >= 100 },
+  { id: 'exercises-10',      xpReward: 300,  label: '10 ejercicios diferentes',  check: s => s.uniqueExercises >= 10 },
+  { id: 'exercises-25',      xpReward: 700,  label: '25 ejercicios diferentes',  check: s => s.uniqueExercises >= 25 },
+  { id: 'tonnage-1',         xpReward: 200,  label: '1 tonelada total',          check: s => s.tonnageTons >= 1 },
+  { id: 'tonnage-10',        xpReward: 500,  label: '10 toneladas totales',      check: s => s.tonnageTons >= 10 },
+  { id: 'tonnage-50',        xpReward: 1000, label: '50 toneladas totales',      check: s => s.tonnageTons >= 50 },
+  { id: 'tonnage-100',       xpReward: 2000, label: '100 toneladas totales',     check: s => s.tonnageTons >= 100 },
+  { id: 'prs-5',             xpReward: 500,  label: '5 records personales',      check: s => s.prCount >= 5 },
+  { id: 'prs-15',            xpReward: 1000, label: '15 records personales',     check: s => s.prCount >= 15 },
+  { id: 'body-5',            xpReward: 200,  label: '5 mediciones corporales',   check: s => s.bodyMetricEntries >= 5 },
+  { id: 'body-20',           xpReward: 500,  label: '20 mediciones corporales',  check: s => s.bodyMetricEntries >= 20 },
+  { id: 'perfect-days-7',    xpReward: 400,  label: '7 días perfectos',          check: s => s.allHabitsDays >= 7 },
+  { id: 'perfect-days-30',   xpReward: 1500, label: '30 días perfectos',         check: s => s.allHabitsDays >= 30 },
+]

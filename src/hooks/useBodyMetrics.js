@@ -148,3 +148,35 @@ export function useSquadBodyMetrics() {
 
   return { squadMetrics, loading }
 }
+
+// Fetch all body metrics history for all squad members (for comparison charts)
+export function useSquadBodyHistory() {
+  const [squadHistory, setSquadHistory] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetch() {
+      const { data: profiles } = await supabase.from('profiles').select('id, name, color')
+      if (!profiles) { setLoading(false); return }
+
+      const result = []
+      for (const p of profiles) {
+        const { data } = await supabase
+          .from('body_metrics')
+          .select('date, weight, body_fat_pct, muscle_mass, chest, waist, bicep_right, thigh_right')
+          .eq('user_id', p.id)
+          .order('date', { ascending: true })
+
+        result.push({
+          ...p,
+          entries: (data || []).filter(m => m.weight),
+        })
+      }
+      setSquadHistory(result)
+      setLoading(false)
+    }
+    fetch()
+  }, [])
+
+  return { squadHistory, loading }
+}

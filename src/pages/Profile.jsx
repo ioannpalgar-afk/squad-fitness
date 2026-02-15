@@ -3,8 +3,10 @@ import { useAuth } from '../contexts/AuthContext'
 import { useWorkouts } from '../hooks/useWorkouts'
 import { useHabits } from '../hooks/useHabits'
 import { useStats } from '../hooks/useStats'
-import { Calendar, Dumbbell, Flame } from 'lucide-react'
+import { useGamification } from '../hooks/useGamification'
+import { Calendar, Dumbbell, Flame, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import AvatarWithMood from '../components/avatar/AvatarWithMood'
 import BadgeCard from '../components/badges/BadgeCard'
 import StreakCounter from '../components/ui/StreakCounter'
@@ -12,10 +14,12 @@ import PageWrapper from '../components/layout/PageWrapper'
 import { BADGES, EMOJI_ASSETS } from '../data/constants'
 
 export default function Profile() {
+  const navigate = useNavigate()
   const { profile, signOut } = useAuth()
   const { sessions } = useWorkouts()
   const { streak, completedToday, totalToday } = useHabits()
   const { personalRecords } = useStats()
+  const { stats: gamification } = useGamification()
 
   const userColor = profile?.color || '#00F0FF'
   const totalWorkouts = sessions.filter(s => s.finished_at).length
@@ -59,6 +63,47 @@ export default function Profile() {
           </div>
         )}
       </div>
+
+      {/* Level card */}
+      {gamification && (
+        <motion.button
+          onClick={() => navigate('/progresion')}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 w-full overflow-hidden rounded-2xl p-4 text-left"
+          style={{
+            background: gamification.rank.gradient,
+            boxShadow: `0 0 30px ${gamification.rank.color}22`,
+          }}
+        >
+          <div className="relative z-10" style={{ background: 'none' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-display text-sm font-black tracking-wider" style={{ color: gamification.rank.color, textShadow: `0 0 10px ${gamification.rank.color}66` }}>
+                  {gamification.rank.name}
+                </p>
+                <p className="text-[10px] text-white/60">Nivel {gamification.level}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="font-mono text-sm font-bold text-white">{gamification.xp.toLocaleString()} XP</span>
+                <ChevronRight size={14} className="text-white/40" />
+              </div>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${gamification.progress}%` }}
+                transition={{ duration: 1, ease: 'easeOut' }}
+                className="h-full rounded-full"
+                style={{ backgroundColor: gamification.rank.color }}
+              />
+            </div>
+            <p className="mt-1 text-right font-mono text-[9px] text-white/40">
+              {gamification.nextLevelXP.toLocaleString()} XP para Lvl {gamification.level + 1}
+            </p>
+          </div>
+        </motion.button>
+      )}
 
       {/* Quick stats */}
       <div className="mb-8 grid grid-cols-4 gap-2">

@@ -10,6 +10,7 @@ import History from './pages/History'
 import Analytics from './pages/Analytics'
 import Squad from './pages/Squad'
 import Profile from './pages/Profile'
+import Progression from './pages/Progression'
 
 function ProtectedLayout() {
   const { user, profile, loading } = useAuth()
@@ -40,6 +41,7 @@ function ProtectedLayout() {
         <Route path="analiticas" element={<Analytics />} />
         <Route path="squad" element={<Squad />} />
         <Route path="perfil" element={<Profile />} />
+        <Route path="progresion" element={<Progression />} />
       </Routes>
       <BottomNav userColor={userColor} />
     </div>

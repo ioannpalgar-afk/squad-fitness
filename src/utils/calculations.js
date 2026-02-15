@@ -298,6 +298,83 @@ export function formatWeight(kg) {
   return kg % 1 === 0 ? `${kg}kg` : `${kg.toFixed(1)}kg`
 }
 
+// ============================================
+// GAMIFICATION - XP & LEVELS
+// ============================================
+
+// XP required to reach a given level (cumulative)
+export function xpForLevel(level) {
+  if (level <= 1) return 0
+  return Math.floor(75 * Math.pow(level - 1, 1.8))
+}
+
+// Get current level from total XP
+export function levelFromXP(totalXP) {
+  let level = 1
+  while (xpForLevel(level + 1) <= totalXP) level++
+  return level
+}
+
+// Progress percentage within current level
+export function levelProgress(totalXP) {
+  const level = levelFromXP(totalXP)
+  const currentThreshold = xpForLevel(level)
+  const nextThreshold = xpForLevel(level + 1)
+  if (nextThreshold <= currentThreshold) return 100
+  return Math.round(((totalXP - currentThreshold) / (nextThreshold - currentThreshold)) * 100)
+}
+
+// Calculate XP breakdown from user stats
+export function calculateXP({
+  workoutCount = 0,
+  habitCompletions = 0,
+  allHabitsDays = 0,
+  prCount = 0,
+  uniqueExercises = 0,
+  bodyMetricEntries = 0,
+  streak = 0,
+  weightIncreases = 0,
+  tonnageTons = 0,
+}) {
+  const breakdown = []
+
+  const workoutXP = workoutCount * 100
+  if (workoutXP > 0) breakdown.push({ source: 'Entrenos completados', xp: workoutXP, count: workoutCount })
+
+  const habitXP = habitCompletions * 20
+  if (habitXP > 0) breakdown.push({ source: 'Hábitos completados', xp: habitXP, count: habitCompletions })
+
+  const allHabitsXP = allHabitsDays * 50
+  if (allHabitsXP > 0) breakdown.push({ source: 'Días perfectos (todos los hábitos)', xp: allHabitsXP, count: allHabitsDays })
+
+  const prXP = prCount * 200
+  if (prXP > 0) breakdown.push({ source: 'Records personales', xp: prXP, count: prCount })
+
+  const exerciseXP = uniqueExercises * 75
+  if (exerciseXP > 0) breakdown.push({ source: 'Ejercicios desbloqueados', xp: exerciseXP, count: uniqueExercises })
+
+  const metricsXP = bodyMetricEntries * 30
+  if (metricsXP > 0) breakdown.push({ source: 'Mediciones corporales', xp: metricsXP, count: bodyMetricEntries })
+
+  const weightXP = weightIncreases * 50
+  if (weightXP > 0) breakdown.push({ source: 'Incrementos de peso', xp: weightXP, count: weightIncreases })
+
+  // Tonnage milestones (every 5 tons = 100 XP)
+  const tonnageMilestones = Math.floor(tonnageTons / 5)
+  const tonnageXP = tonnageMilestones * 100
+  if (tonnageXP > 0) breakdown.push({ source: 'Hitos de tonelaje (cada 5t)', xp: tonnageXP, count: tonnageMilestones })
+
+  // Streak milestones
+  let streakXP = 0
+  if (streak >= 100) streakXP += 3000
+  if (streak >= 30) streakXP += 1000
+  if (streak >= 7) streakXP += 300
+  if (streakXP > 0) breakdown.push({ source: 'Hitos de racha', xp: streakXP, count: streak })
+
+  const total = breakdown.reduce((sum, b) => sum + b.xp, 0)
+  return { total, breakdown: breakdown.sort((a, b) => b.xp - a.xp) }
+}
+
 // Slope of linear regression (for trend detection)
 export function linearSlope(values) {
   const n = values.length
