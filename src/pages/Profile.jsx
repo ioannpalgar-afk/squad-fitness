@@ -3,7 +3,8 @@ import { useWorkouts } from '../hooks/useWorkouts'
 import { useHabits } from '../hooks/useHabits'
 import { useStats } from '../hooks/useStats'
 import { useGamification } from '../hooks/useGamification'
-import { Calendar, Dumbbell, Flame, ChevronRight } from 'lucide-react'
+import { useBackground, BACKGROUND_OPTIONS } from '../hooks/useBackground'
+import { Calendar, Dumbbell, Flame, ChevronRight, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import AvatarWithMood from '../components/avatar/AvatarWithMood'
@@ -19,6 +20,7 @@ export default function Profile() {
   const { streak, completedToday, totalToday } = useHabits()
   const { personalRecords } = useStats()
   const { stats: gamification } = useGamification()
+  const { background, changeBackground } = useBackground()
 
   const userColor = profile?.color || '#00F0FF'
   const totalWorkouts = sessions.filter(s => s.finished_at).length
@@ -162,7 +164,50 @@ export default function Profile() {
         )}
       </section>
 
-      {/* Settings / Logout */}
+      {/* Background selector */}
+      <section className="mb-8">
+        <h2 className="mb-3 font-display text-xs uppercase tracking-[0.2em] text-text-secondary">
+          Fondo
+        </h2>
+        <div className="grid grid-cols-4 gap-2">
+          {BACKGROUND_OPTIONS.map(bg => (
+            <button
+              key={bg.id}
+              onClick={() => changeBackground(bg.id)}
+              className="relative aspect-square overflow-hidden rounded-lg border transition-all"
+              style={{
+                borderColor: background === bg.id ? userColor : 'rgba(255,255,255,0.06)',
+                boxShadow: background === bg.id ? `0 0 12px ${userColor}33` : 'none',
+              }}
+            >
+              {bg.file ? (
+                <img
+                  src={`/assets/backgrounds/patterns/${bg.file}`}
+                  alt={bg.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-bg-primary">
+                  <span className="text-[10px] text-text-muted">Off</span>
+                </div>
+              )}
+              {background === bg.id && (
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ background: `${userColor}33` }}
+                >
+                  <Check size={16} style={{ color: userColor }} />
+                </div>
+              )}
+              <span className="absolute inset-x-0 bottom-0 bg-black/60 px-1 py-0.5 text-center text-[8px] leading-tight text-white/70">
+                {bg.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Logout */}
       <div className="space-y-2">
         <button
           onClick={signOut}

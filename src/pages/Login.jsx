@@ -1,44 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { Eye, EyeOff, Zap } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { UserPlus, ArrowLeft } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import AvatarWithMood from '../components/avatar/AvatarWithMood'
 
 export default function Login() {
-  const { signIn, signUp } = useAuth()
-  const [isRegister, setIsRegister] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const { signInByName, signUpByName, fetchAllProfiles } = useAuth()
+  const [profiles, setProfiles] = useState([])
+  const [mode, setMode] = useState('select') // 'select' | 'join'
   const [name, setName] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
+  const [loadingProfile, setLoadingProfile] = useState(null)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  useEffect(() => {
+    fetchAllProfiles().then(setProfiles)
+  }, [])
+
+  async function handleSelect(profile) {
     setError('')
-    setSuccess('')
+    setLoadingProfile(profile.id)
+    try {
+      await signInByName(profile.name)
+    } catch {
+      setError('No se pudo entrar. Intenta de nuevo.')
+      setLoadingProfile(null)
+    }
+  }
+
+  async function handleJoin(e) {
+    e.preventDefault()
+    if (!name.trim()) { setError('Escribe tu nombre, crack'); return }
+    setError('')
     setLoading(true)
     try {
-      if (isRegister) {
-        if (!name.trim()) { setError('Escribe tu nombre, crack'); setLoading(false); return }
-        await signUp(email, password, name.trim())
-        setSuccess('Cuenta creada. Bienvenido al squad. 🔥')
-      } else {
-        await signIn(email, password)
-      }
+      await signUpByName(name.trim())
     } catch (err) {
-      const msg = err.message
-      if (msg.includes('Invalid login')) setError('Email o contraseña incorrectos 💀')
-      else if (msg.includes('already registered')) setError('Este email ya está en el squad')
-      else if (msg.includes('least 6')) setError('Mínimo 6 caracteres, no seas vago')
-      else setError(msg)
+      if (err.message?.includes('already registered')) {
+        setError('Este nombre ya está en el squad')
+      } else {
+        setError(err.message || 'Error al crear cuenta')
+      }
     }
     setLoading(false)
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 overflow-hidden" style={{ background: '#0A0A12' }}>
+    <div
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4"
+      style={{ background: '#0A0A12' }}
+    >
       {/* Hero background */}
       <div className="absolute inset-0">
         <img
@@ -46,7 +57,10 @@ export default function Login() {
           alt=""
           className="h-full w-full object-cover opacity-40"
         />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0A0A12 0%, transparent 50%, #0A0A1288 100%)' }} />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, #0A0A12 0%, transparent 50%, #0A0A1288 100%)' }}
+        />
       </div>
 
       <motion.div
@@ -54,8 +68,8 @@ export default function Login() {
         animate={{ opacity: 1, y: 0 }}
         className="relative z-10 w-full max-w-sm"
       >
-        {/* Onboarding scene */}
-        <div className="mb-6 text-center">
+        {/* Header */}
+        <div className="mb-8 text-center">
           <motion.img
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -64,79 +78,133 @@ export default function Login() {
             alt="Squad Fitness"
             className="mx-auto mb-4 h-40 w-auto object-contain drop-shadow-2xl"
           />
-          <h1 className="font-display text-2xl font-bold tracking-wider text-glow-cyan">SQUAD FITNESS</h1>
-          <p className="mt-1 text-sm text-text-secondary">Entrena. Compite. Domina.</p>
+          <h1 className="font-display text-2xl font-bold tracking-wider text-glow-cyan">
+            SQUAD FITNESS
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            {mode === 'select' ? '¿Quién entrena hoy?' : 'Únete al squad'}
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegister && (
-            <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-text-secondary">Nombre</label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="¿Cómo te llaman?"
-                className="input-cyber w-full px-4 py-3 text-sm"
-              />
-            </div>
-          )}
+        <AnimatePresence mode="wait">
+          {mode === 'select' ? (
+            <motion.div
+              key="select"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              {/* Profile avatar grid */}
+              {profiles.length > 0 ? (
+                <div className="mb-6 grid grid-cols-3 gap-3">
+                  {profiles.map((p, i) => (
+                    <motion.button
+                      key={p.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + i * 0.1 }}
+                      onClick={() => handleSelect(p)}
+                      disabled={loadingProfile !== null}
+                      className="card flex flex-col items-center gap-2 px-2 py-4 transition-all active:scale-95 disabled:opacity-50"
+                      style={{
+                        borderColor: loadingProfile === p.id ? (p.color || '#00F0FF') + '44' : 'transparent',
+                        borderWidth: 1,
+                        boxShadow: loadingProfile === p.id ? `0 0 20px ${p.color || '#00F0FF'}22` : 'none',
+                      }}
+                    >
+                      <AvatarWithMood
+                        name={p.name}
+                        color={p.color || '#00F0FF'}
+                        avatarBase={p.name?.toLowerCase()}
+                        size="lg"
+                        mood="base"
+                      />
+                      <span className="text-sm font-bold">{p.name}</span>
+                      {p.nickname && (
+                        <span
+                          className="text-[10px] uppercase tracking-wider"
+                          style={{ color: p.color || '#00F0FF' }}
+                        >
+                          {p.nickname}
+                        </span>
+                      )}
+                      {loadingProfile === p.id && (
+                        <div className="mt-1 h-0.5 w-full overflow-hidden rounded-full bg-white/10">
+                          <motion.div
+                            animate={{ x: ['-100%', '100%'] }}
+                            transition={{ duration: 0.8, repeat: Infinity }}
+                            className="h-full w-1/2 rounded-full"
+                            style={{ background: p.color || '#00F0FF' }}
+                          />
+                        </div>
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+              ) : (
+                <div className="mb-6 text-center">
+                  <p className="text-sm text-text-muted">Cargando squad...</p>
+                </div>
+              )}
 
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-text-secondary">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              required
-              className="input-cyber w-full px-4 py-3 text-sm"
-            />
-          </div>
+              {error && <p className="mb-4 text-center text-sm text-neon-red">{error}</p>}
 
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-text-secondary">Contraseña</label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                required
-                className="input-cyber w-full px-4 py-3 pr-11 text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted"
+              {/* Join button */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                onClick={() => { setMode('join'); setError('') }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-3 text-sm text-text-secondary transition hover:border-neon-cyan/30 hover:text-neon-cyan"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                <UserPlus size={16} />
+                Nuevo? Únete al squad
+              </motion.button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="join"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <form onSubmit={handleJoin} className="space-y-4">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                    Tu nombre
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="¿Cómo te llaman?"
+                    autoFocus
+                    className="input-cyber w-full px-4 py-3 text-sm"
+                  />
+                </div>
+
+                {error && <p className="text-sm text-neon-red">{error}</p>}
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  type="submit"
+                  disabled={loading}
+                  className="btn-primary w-full py-3 text-sm disabled:opacity-50"
+                >
+                  {loading ? 'CREANDO...' : 'UNIRSE AL SQUAD'}
+                </motion.button>
+              </form>
+
+              <button
+                onClick={() => { setMode('select'); setError('') }}
+                className="mt-4 flex w-full items-center justify-center gap-1 text-sm text-text-muted"
+              >
+                <ArrowLeft size={14} />
+                Volver
               </button>
-            </div>
-          </div>
-
-          {error && <p className="text-sm text-neon-red">{error}</p>}
-          {success && <p className="text-sm text-neon-green">{success}</p>}
-
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full py-3 text-sm disabled:opacity-50"
-          >
-            {loading ? 'CARGANDO...' : isRegister ? 'UNIRSE AL SQUAD' : 'ENTRAR'}
-          </motion.button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-text-muted">
-          {isRegister ? '¿Ya estás en el squad?' : '¿Eres nuevo?'}{' '}
-          <button
-            onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess('') }}
-            className="font-semibold text-neon-cyan hover:text-glow-cyan"
-          >
-            {isRegister ? 'Inicia sesión' : 'Únete'}
-          </button>
-        </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   )

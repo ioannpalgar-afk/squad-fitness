@@ -3,6 +3,17 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
 
+const SQUAD_PASSWORD = 'squad-fitness-2024!'
+
+function deriveEmail(name) {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '')
+    + '@squad.app'
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -36,18 +47,31 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  async function signUp(email, password, name) {
-    const { data, error } = await supabase.auth.signUp({
+  async function fetchAllProfiles() {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, name, color, nickname')
+      .order('name')
+    return data || []
+  }
+
+  async function signInByName(name) {
+    const email = deriveEmail(name)
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password,
-      options: { data: { name } }
+      password: SQUAD_PASSWORD,
     })
     if (error) throw error
     return data
   }
 
-  async function signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  async function signUpByName(name) {
+    const email = deriveEmail(name)
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: SQUAD_PASSWORD,
+      options: { data: { name } },
+    })
     if (error) throw error
     return data
   }
@@ -58,7 +82,11 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{
+      user, profile, loading,
+      signInByName, signUpByName, signOut,
+      fetchAllProfiles,
+    }}>
       {children}
     </AuthContext.Provider>
   )
