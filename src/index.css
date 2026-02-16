@@ -188,18 +188,21 @@ body {
    ================================ */
 
 .btn-primary {
-  background: linear-gradient(135deg, #00F0FF, #BF00FF);
-  border: none;
-  border-radius: 999px;
-  color: white;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 10px;
+  color: #00F0FF;
   font-family: 'Orbitron', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.2s;
+  letter-spacing: 0.08em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .btn-primary:hover {
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.14);
+  border-color: rgba(0, 240, 255, 0.6);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), 0 0 40px rgba(0, 240, 255, 0.05);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: scale(0.97); }
