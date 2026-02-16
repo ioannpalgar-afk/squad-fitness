@@ -27,7 +27,8 @@ export default function AvatarWithMood({
   const initials = name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?'
 
   // All avatars are in /assets/avatars/{name}-{mood}.png
-  const userId = avatarBase?.toLowerCase()
+  // Normalize: remove accents (Cristóbal -> cristobal)
+  const userId = avatarBase?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const moodSrc = userId ? `/assets/avatars/${userId}-${currentMood}.png` : null
   const baseSrc = userId ? `/assets/avatars/${userId}-base.png` : null
 
