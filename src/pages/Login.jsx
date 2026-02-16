@@ -70,14 +70,18 @@ export default function Login() {
       >
         {/* Header */}
         <div className="mb-8 text-center">
-          <motion.img
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            src="/assets/illustrations/escena-onboarding.png"
-            alt="Squad Fitness"
-            className="mx-auto mb-4 h-40 w-auto object-contain drop-shadow-2xl"
-          />
+            className="mx-auto mb-4 h-36 w-72 overflow-hidden rounded-2xl drop-shadow-2xl"
+          >
+            <img
+              src="/assets/illustrations/escena-onboarding.png"
+              alt="Squad Fitness"
+              className="h-full w-full scale-110 object-cover object-center"
+            />
+          </motion.div>
           <h1 className="font-display text-2xl font-bold tracking-wider text-glow-cyan">
             SQUAD FITNESS
           </h1>
