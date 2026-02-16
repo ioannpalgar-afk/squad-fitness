@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useWorkouts, useFriendActivity, useSquadTaunts } from '../hooks/useWorkouts'
 import { useHabits, useSquadCompletion } from '../hooks/useHabits'
 import { useNavigate } from 'react-router-dom'
-import { Dumbbell, LogOut, Zap, Plus, ChevronRight } from 'lucide-react'
+import { Dumbbell, LogOut, Zap, Plus, ChevronRight, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -93,10 +93,11 @@ export default function Dashboard() {
           </div>
         </div>
         <button
-          onClick={signOut}
-          className="rounded-xl bg-bg-secondary p-2.5 text-text-muted transition hover:bg-bg-tertiary hover:text-text-primary"
+          onClick={() => navigate('/perfil')}
+          className="rounded-xl bg-bg-secondary p-2.5 transition hover:bg-bg-tertiary"
+          style={{ color: userColor }}
         >
-          <LogOut size={18} />
+          <User size={18} />
         </button>
       </div>
 
