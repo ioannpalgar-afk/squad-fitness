@@ -7,7 +7,7 @@ import { Play, Square, Check, Timer, Trophy, Zap, Minus, Plus } from 'lucide-rea
 import { motion, AnimatePresence } from 'framer-motion'
 import RestTimer from '../components/workouts/RestTimer'
 import PageWrapper from '../components/layout/PageWrapper'
-import { formatTime } from '../utils/calculations'
+import { formatTime, calculateRigorScore } from '../utils/calculations'
 
 export default function WorkoutSession() {
   const navigate = useNavigate()
@@ -119,7 +119,19 @@ export default function WorkoutSession() {
   // SUMMARY
   if (phase === 'summary') {
     const totalVolume = loggedSets.reduce((sum, s) => sum + (s.reps || 0) * (s.weight || 0), 0)
-    const exerciseNames = [...new Set(loggedSets.map(s => s.exercise?.name))]
+    const routineExercises = selectedRoutine?.routine_exercises || []
+    const rigor = routineExercises.length > 0 ? calculateRigorScore(loggedSets, routineExercises) : null
+    const rigorColor = rigor ? (rigor.score >= 100 ? '#00F0FF' : rigor.score >= 80 ? '#00FF88' : rigor.score >= 50 ? '#FFD700' : '#FF3D5A') : null
+    const isPerfect = rigor && rigor.score >= 100
+
+    const statusConfig = {
+      complete:   { icon: '✓', color: '#00FF88' },
+      exceeded:   { icon: '⭐', color: '#FFD700' },
+      incomplete: { icon: '✗', color: '#FF3D5A' },
+      skipped:    { icon: '✗', color: '#FF3D5A' },
+      extra:      { icon: '+', color: '#BF00FF' },
+    }
+
     return (
       <PageWrapper>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
@@ -127,8 +139,48 @@ export default function WorkoutSession() {
             <Trophy size={40} style={{ color: userColor }} />
           </div>
           <h1 className="font-display mb-1 text-xl font-bold uppercase tracking-wider text-glow-cyan">Entreno completado</h1>
-          <p className="mb-8 text-text-secondary">{selectedRoutine?.name}</p>
-          <div className="mb-8 grid grid-cols-3 gap-3">
+          <p className="mb-6 text-text-secondary">{selectedRoutine?.name}</p>
+
+          {/* Rigor score */}
+          {rigor && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="card mb-6 text-left"
+              style={isPerfect ? { border: `1px solid ${rigorColor}33`, boxShadow: `0 0 20px ${rigorColor}22` } : undefined}
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <span className="font-display text-xs uppercase tracking-wider text-text-secondary">Puntuación de rigor</span>
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.6, type: 'spring' }}
+                  className="font-mono text-2xl font-bold"
+                  style={{ color: rigorColor, textShadow: isPerfect ? `0 0 12px ${rigorColor}88` : undefined }}
+                >
+                  {rigor.score}
+                </motion.span>
+              </div>
+              <div className="mb-2 h-2.5 overflow-hidden rounded-full bg-bg-surface">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(rigor.score, 100)}%` }}
+                  transition={{ duration: 1, delay: 0.4, ease: 'easeOut' }}
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: rigorColor, boxShadow: isPerfect ? `0 0 12px ${rigorColor}88` : `0 0 6px ${rigorColor}44` }}
+                />
+              </div>
+              <div className="flex gap-3 text-[9px] text-text-muted">
+                <span>Ejercicios: {rigor.exerciseCompletion}/30</span>
+                <span>Sets: {rigor.setCompletion}/40</span>
+                <span>Peso: {rigor.weightAdherence}/30</span>
+                {rigor.extraBonus > 0 && <span style={{ color: '#BF00FF' }}>+{rigor.extraBonus} extra</span>}
+              </div>
+            </motion.div>
+          )}
+
+          <div className="mb-6 grid grid-cols-3 gap-3">
             {[
               { val: formatTime(elapsed), label: 'Duración' },
               { val: loggedSets.length, label: 'Sets' },
@@ -140,17 +192,54 @@ export default function WorkoutSession() {
               </div>
             ))}
           </div>
+
+          {/* Exercise breakdown with rigor */}
           <div className="mb-8 text-left">
             <h3 className="font-display mb-2 text-xs uppercase tracking-[0.2em] text-text-secondary">Ejercicios</h3>
-            {exerciseNames.map(name => {
-              const sets = loggedSets.filter(s => s.exercise?.name === name)
-              return (
-                <div key={name} className="mb-1 flex items-center justify-between rounded-lg bg-bg-secondary px-3 py-2">
-                  <span className="text-sm">{name}</span>
-                  <span className="text-xs text-text-muted">{sets.length} sets</span>
-                </div>
-              )
-            })}
+            {rigor ? (
+              <div className="space-y-1.5">
+                {rigor.details.map((d, i) => {
+                  const st = statusConfig[d.status] || {}
+                  return (
+                    <div key={d.exerciseId || i} className="rounded-lg bg-bg-secondary px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0 flex-1">
+                          <span className="text-sm">{d.exerciseName}</span>
+                          {d.muscleGroup && <span className="ml-1.5 text-[10px] text-text-muted">{d.muscleGroup}</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-text-muted">{d.setsDone}/{d.setsTarget || '—'} sets</span>
+                          <span style={{ color: st.color }} className="text-sm">{st.icon}</span>
+                        </div>
+                      </div>
+                      {d.sets.length > 0 && (
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-text-muted">
+                          {d.sets.map((s, j) => (
+                            <span key={j} className="font-mono">
+                              {s.reps}x{s.weight}kg
+                              {d.setsTarget > 0 && j >= d.setsTarget && <span className="ml-0.5 text-[8px]" style={{ color: '#BF00FF' }}>+</span>}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {d.setsTarget > 0 && d.restSeconds > 0 && (
+                        <p className="mt-0.5 text-[9px] text-text-muted">Descanso: {d.restSeconds}s</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              [...new Set(loggedSets.map(s => s.exercise?.name))].map(name => {
+                const sets = loggedSets.filter(s => s.exercise?.name === name)
+                return (
+                  <div key={name} className="mb-1 flex items-center justify-between rounded-lg bg-bg-secondary px-3 py-2">
+                    <span className="text-sm">{name}</span>
+                    <span className="text-xs text-text-muted">{sets.length} sets</span>
+                  </div>
+                )
+              })
+            )}
           </div>
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate('/')} className="btn-primary w-full py-3 text-sm">
             VOLVER AL INICIO

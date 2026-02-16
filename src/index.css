@@ -37,8 +37,8 @@
 
 body {
   background-color: #0A0A12;
-  background-image: url('/assets/backgrounds/bg-pattern-dark.png');
-  background-size: 300px;
+  background-image: url('/assets/backgrounds/patterns/circuit-board.png');
+  background-size: 512px;
   background-repeat: repeat;
   color: #E8E8F0;
   font-family: 'Inter', 'Outfit', sans-serif;

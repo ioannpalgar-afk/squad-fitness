@@ -77,6 +77,7 @@ export function useBodyMetrics() {
     .filter(m => m.body_fat_pct)
     .map(m => ({
       date: new Date(m.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }),
+      rawDate: m.date,
       bodyFat: Number(m.body_fat_pct),
       muscleMass: m.muscle_mass ? Number(m.muscle_mass) : null,
     }))
@@ -86,6 +87,7 @@ export function useBodyMetrics() {
     .filter(m => m.chest || m.waist || m.bicep_right)
     .map(m => ({
       date: new Date(m.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }),
+      rawDate: m.date,
       chest: m.chest ? Number(m.chest) : null,
       waist: m.waist ? Number(m.waist) : null,
       hip: m.hip ? Number(m.hip) : null,

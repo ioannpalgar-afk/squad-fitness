@@ -5,9 +5,9 @@ export default function StreakCounter({ count = 0, color = '#FFD700', size = 'md
   if (count <= 0) return null
 
   const sizes = {
-    sm: { num: 'text-lg', fire: 'h-5 w-5', label: 'text-[10px]' },
-    md: { num: 'text-3xl', fire: 'h-8 w-8', label: 'text-xs' },
-    lg: { num: 'text-5xl', fire: 'h-12 w-12', label: 'text-sm' },
+    sm: { num: 'text-lg', fire: 'text-lg', label: 'text-[10px]' },
+    md: { num: 'text-3xl', fire: 'text-2xl', label: 'text-xs' },
+    lg: { num: 'text-5xl', fire: 'text-4xl', label: 'text-sm' },
   }
   const s = sizes[size]
 
@@ -22,12 +22,12 @@ export default function StreakCounter({ count = 0, color = '#FFD700', size = 'md
         } : {}}
         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <img
-          src={EMOJI_ASSETS.fire}
-          alt="streak"
-          className={`${s.fire} object-contain`}
+        <span
+          className={`${s.fire} flex items-center justify-center`}
           style={isLegendary ? { filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.6))' } : {}}
-        />
+        >
+          {EMOJI_ASSETS.fire}
+        </span>
       </motion.div>
 
       <motion.span

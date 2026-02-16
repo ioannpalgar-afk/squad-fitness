@@ -51,8 +51,15 @@ export default function CelebrationOverlay({ show, onClose }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 px-6"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6"
           onClick={onClose}
+          style={{
+            backgroundImage: "url('/assets/backgrounds/moments/squad-complete.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: 'rgba(10,10,18,0.92)',
+            backgroundBlendMode: 'overlay',
+          }}
         >
           {/* Confetti */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden">

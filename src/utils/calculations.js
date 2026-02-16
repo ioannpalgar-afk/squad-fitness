@@ -88,6 +88,68 @@ export const VOLUME_LANDMARKS = {
   'Core':       { mv: 0,  mev: 0,  mavLow: 8,  mavHigh: 16, mrv: 25 },
 }
 
+// Per-exercise weekly set targets (recommended sets/week)
+export const EXERCISE_VOLUME_LANDMARKS = {
+  // === PECHO ===
+  'Press Banca':                { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Press Inclinado Mancuernas': { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Aperturas con Poleas':       { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  'Fondos en Paralelas':        { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  // === HOMBROS ===
+  'Press Militar':              { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Elevaciones Laterales':      { low: 3, good: 5, optimal: 8, high: 10, excessive: 14 },
+  'Face Pull':                  { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Pájaros (Reverse Fly)':     { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  // === TRÍCEPS ===
+  'Extensión de Tríceps en Polea': { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Press Francés':              { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  'Fondos en Banco':            { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  // === ESPALDA ===
+  'Dominadas':                  { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Jalón al Pecho':             { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Remo con Barra':             { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Remo en Polea Baja':         { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Remo con Mancuerna':         { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  // === BÍCEPS ===
+  'Curl con Barra':             { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Curl Martillo':              { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Curl en Polea':              { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Curl Concentrado':           { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  // === CUÁDRICEPS ===
+  'Sentadilla':                 { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Prensa de Piernas':          { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Extensión de Cuádriceps':    { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Sentadilla Búlgara':         { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Zancadas':                   { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  // === FEMORAL ===
+  'Curl Femoral Tumbado':       { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  'Peso Muerto Rumano':         { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Curl Femoral Sentado':       { low: 2, good: 3, optimal: 5, high: 7, excessive: 9 },
+  // === GLÚTEO ===
+  'Hip Thrust':                 { low: 2, good: 4, optimal: 6, high: 8, excessive: 10 },
+  'Patada de Glúteo en Polea':  { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  // === GEMELOS ===
+  'Elevación de Gemelos de Pie':   { low: 3, good: 4, optimal: 6, high: 8, excessive: 12 },
+  'Elevación de Gemelos Sentado':  { low: 3, good: 4, optimal: 6, high: 8, excessive: 12 },
+  // === CORE ===
+  'Plancha':                    { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  'Crunch en Polea':            { low: 2, good: 3, optimal: 5, high: 7, excessive: 10 },
+  'Elevación de Piernas':       { low: 2, good: 3, optimal: 5, high: 7, excessive: 10 },
+  'Russian Twist':              { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+  'Ab Wheel':                   { low: 2, good: 3, optimal: 4, high: 6, excessive: 8 },
+}
+
+export function evaluateExerciseVolume(exercise, weeklySets) {
+  const l = EXERCISE_VOLUME_LANDMARKS[exercise]
+  if (!l) return { zone: 'unknown', color: '#555568', label: 'Sin referencia' }
+  if (weeklySets < l.low) return { zone: 'low', color: '#FF3D5A', label: 'Bajo' }
+  if (weeklySets < l.good) return { zone: 'minimum', color: '#FF8C00', label: 'Mínimo' }
+  if (weeklySets < l.optimal) return { zone: 'good', color: '#FFD700', label: 'Bueno' }
+  if (weeklySets <= l.high) return { zone: 'optimal', color: '#00FF88', label: 'Óptimo' }
+  if (weeklySets <= l.excessive) return { zone: 'high', color: '#FF8C00', label: 'Alto' }
+  return { zone: 'excessive', color: '#FF3D5A', label: 'Excesivo' }
+}
+
 export function evaluateVolume(muscleGroup, weeklySets) {
   const l = VOLUME_LANDMARKS[muscleGroup]
   if (!l) return { zone: 'unknown', color: '#555568', label: 'Desconocido' }
@@ -104,13 +166,53 @@ export function evaluateVolume(muscleGroup, weeklySets) {
 // ============================================
 
 export const STRENGTH_STANDARDS = {
-  'Press Banca':          { beginner: 0.50, novice: 1.00, intermediate: 1.25, advanced: 1.75, elite: 2.25 },
-  'Press Banca Inclinado': { beginner: 0.40, novice: 0.85, intermediate: 1.10, advanced: 1.50, elite: 2.00 },
-  'Sentadilla':           { beginner: 0.75, novice: 1.25, intermediate: 1.75, advanced: 2.25, elite: 2.75 },
-  'Peso Muerto':          { beginner: 1.00, novice: 1.50, intermediate: 2.00, advanced: 2.75, elite: 3.50 },
-  'Press Militar':        { beginner: 0.35, novice: 0.55, intermediate: 0.80, advanced: 1.10, elite: 1.40 },
-  'Remo con Barra':       { beginner: 0.40, novice: 0.65, intermediate: 1.00, advanced: 1.30, elite: 1.60 },
-  'Prensa':               { beginner: 1.50, novice: 2.50, intermediate: 3.50, advanced: 4.50, elite: 5.50 },
+  // === PECHO ===
+  'Press Banca':                { beginner: 0.50, novice: 0.75, intermediate: 1.00, advanced: 1.25, elite: 1.50 },
+  'Press Inclinado Mancuernas': { beginner: 0.15, novice: 0.25, intermediate: 0.35, advanced: 0.50, elite: 0.65 },
+  'Aperturas con Poleas':       { beginner: 0.08, novice: 0.13, intermediate: 0.20, advanced: 0.28, elite: 0.38 },
+  'Fondos en Paralelas':        { beginner: 0.50, novice: 0.75, intermediate: 1.00, advanced: 1.30, elite: 1.60 },
+  // === HOMBROS ===
+  'Press Militar':              { beginner: 0.30, novice: 0.45, intermediate: 0.65, advanced: 0.85, elite: 1.10 },
+  'Elevaciones Laterales':      { beginner: 0.05, novice: 0.08, intermediate: 0.13, advanced: 0.18, elite: 0.25 },
+  'Face Pull':                  { beginner: 0.10, novice: 0.18, intermediate: 0.25, advanced: 0.35, elite: 0.45 },
+  'Pájaros (Reverse Fly)':     { beginner: 0.05, novice: 0.08, intermediate: 0.12, advanced: 0.18, elite: 0.25 },
+  // === TRÍCEPS ===
+  'Extensión de Tríceps en Polea': { beginner: 0.12, novice: 0.20, intermediate: 0.30, advanced: 0.42, elite: 0.55 },
+  'Press Francés':              { beginner: 0.15, novice: 0.25, intermediate: 0.38, advanced: 0.50, elite: 0.65 },
+  'Fondos en Banco':            { beginner: 0.40, novice: 0.60, intermediate: 0.80, advanced: 1.00, elite: 1.25 },
+  // === ESPALDA ===
+  'Dominadas':                  { beginner: 0.50, novice: 0.75, intermediate: 1.00, advanced: 1.30, elite: 1.60 },
+  'Jalón al Pecho':             { beginner: 0.35, novice: 0.55, intermediate: 0.75, advanced: 1.00, elite: 1.25 },
+  'Remo con Barra':             { beginner: 0.40, novice: 0.60, intermediate: 0.80, advanced: 1.05, elite: 1.30 },
+  'Remo en Polea Baja':         { beginner: 0.35, novice: 0.50, intermediate: 0.70, advanced: 0.90, elite: 1.15 },
+  'Remo con Mancuerna':         { beginner: 0.15, novice: 0.25, intermediate: 0.38, advanced: 0.50, elite: 0.65 },
+  // === BÍCEPS ===
+  'Curl con Barra':             { beginner: 0.15, novice: 0.28, intermediate: 0.40, advanced: 0.55, elite: 0.70 },
+  'Curl Martillo':              { beginner: 0.10, novice: 0.18, intermediate: 0.28, advanced: 0.38, elite: 0.50 },
+  'Curl en Polea':              { beginner: 0.10, novice: 0.18, intermediate: 0.25, advanced: 0.35, elite: 0.48 },
+  'Curl Concentrado':           { beginner: 0.06, novice: 0.10, intermediate: 0.16, advanced: 0.22, elite: 0.30 },
+  // === CUÁDRICEPS ===
+  'Sentadilla':                 { beginner: 0.60, novice: 0.85, intermediate: 1.15, advanced: 1.50, elite: 1.85 },
+  'Prensa de Piernas':          { beginner: 1.00, novice: 1.60, intermediate: 2.25, advanced: 3.00, elite: 3.80 },
+  'Extensión de Cuádriceps':    { beginner: 0.20, novice: 0.35, intermediate: 0.50, advanced: 0.70, elite: 0.90 },
+  'Sentadilla Búlgara':         { beginner: 0.15, novice: 0.25, intermediate: 0.40, advanced: 0.55, elite: 0.70 },
+  'Zancadas':                   { beginner: 0.15, novice: 0.25, intermediate: 0.38, advanced: 0.50, elite: 0.65 },
+  // === FEMORAL ===
+  'Curl Femoral Tumbado':       { beginner: 0.15, novice: 0.25, intermediate: 0.38, advanced: 0.50, elite: 0.65 },
+  'Peso Muerto Rumano':         { beginner: 0.50, novice: 0.75, intermediate: 1.00, advanced: 1.35, elite: 1.70 },
+  'Curl Femoral Sentado':       { beginner: 0.15, novice: 0.25, intermediate: 0.38, advanced: 0.50, elite: 0.65 },
+  // === GLÚTEO ===
+  'Hip Thrust':                 { beginner: 0.50, novice: 0.85, intermediate: 1.25, advanced: 1.70, elite: 2.20 },
+  'Patada de Glúteo en Polea':  { beginner: 0.10, novice: 0.18, intermediate: 0.28, advanced: 0.38, elite: 0.50 },
+  // === GEMELOS ===
+  'Elevación de Gemelos de Pie':    { beginner: 0.40, novice: 0.65, intermediate: 0.90, advanced: 1.20, elite: 1.50 },
+  'Elevación de Gemelos Sentado':   { beginner: 0.25, novice: 0.40, intermediate: 0.60, advanced: 0.80, elite: 1.05 },
+  // === CORE ===
+  'Plancha':                    { beginner: 0.00, novice: 0.05, intermediate: 0.13, advanced: 0.20, elite: 0.30 },
+  'Crunch en Polea':            { beginner: 0.15, novice: 0.25, intermediate: 0.40, advanced: 0.55, elite: 0.70 },
+  'Elevación de Piernas':       { beginner: 0.00, novice: 0.05, intermediate: 0.10, advanced: 0.18, elite: 0.25 },
+  'Russian Twist':              { beginner: 0.06, novice: 0.10, intermediate: 0.18, advanced: 0.25, elite: 0.35 },
+  'Ab Wheel':                   { beginner: 0.30, novice: 0.50, intermediate: 0.70, advanced: 0.90, elite: 1.10 },
 }
 
 export function classifyStrength(exercise, e1rm, bodyweight) {
@@ -373,6 +475,126 @@ export function calculateXP({
 
   const total = breakdown.reduce((sum, b) => sum + b.xp, 0)
   return { total, breakdown: breakdown.sort((a, b) => b.xp - a.xp) }
+}
+
+// ============================================
+// RIGOR SCORE — adherence to planned routine
+// ============================================
+
+export function calculateRigorScore(sessionSets, routineExercises) {
+  if (!routineExercises || routineExercises.length === 0) return null
+
+  const planned = routineExercises
+  const exerciseMap = {}
+
+  // Group session sets by exercise_id
+  sessionSets.forEach(s => {
+    const id = s.exercise_id
+    if (!exerciseMap[id]) exerciseMap[id] = []
+    exerciseMap[id].push(s)
+  })
+
+  const details = []
+  let totalSetRatio = 0
+  let totalWeightRatio = 0
+  let exercisesWithWeight = 0
+  let exercisesTrained = 0
+  let totalExtraSets = 0
+
+  planned.forEach(re => {
+    const id = re.exercise_id
+    const sets = exerciseMap[id] || []
+    const setsDone = sets.length
+    const setsTarget = re.sets_target || 1
+    const repsTarget = re.reps_target || 0
+    const weightTarget = re.weight_target || 0
+    const restSeconds = re.rest_seconds || 0
+
+    const exerciseName = re.exercise?.name || 'Ejercicio'
+    const muscleGroup = re.exercise?.muscle_group || ''
+
+    const wasTrained = setsDone > 0
+    if (wasTrained) exercisesTrained++
+
+    // Set completion ratio (capped at 1 for scoring)
+    totalSetRatio += Math.min(setsDone / setsTarget, 1)
+
+    // Extra sets beyond target
+    const extras = Math.max(0, setsDone - setsTarget)
+    totalExtraSets += extras
+
+    // Weight adherence
+    if (weightTarget > 0 && wasTrained) {
+      const avgWeight = sets.reduce((sum, s) => sum + (Number(s.weight) || 0), 0) / setsDone
+      totalWeightRatio += Math.min(avgWeight / weightTarget, 1)
+      exercisesWithWeight++
+    }
+
+    const avgWeight = setsDone > 0
+      ? Math.round((sets.reduce((sum, s) => sum + (Number(s.weight) || 0), 0) / setsDone) * 10) / 10
+      : 0
+
+    const status = !wasTrained ? 'skipped'
+      : setsDone > setsTarget ? 'exceeded'
+      : setsDone === setsTarget ? 'complete'
+      : 'incomplete'
+
+    details.push({
+      exerciseId: id,
+      exerciseName,
+      muscleGroup,
+      setsTarget,
+      setsDone,
+      repsTarget,
+      weightTarget,
+      avgWeight,
+      restSeconds,
+      status,
+      sets: sets.map(s => ({ reps: s.reps, weight: Number(s.weight) || 0, setNumber: s.set_number })),
+    })
+  })
+
+  // Collect extra exercises (not in routine)
+  const plannedIds = new Set(planned.map(re => re.exercise_id))
+  Object.entries(exerciseMap).forEach(([id, sets]) => {
+    if (!plannedIds.has(id)) {
+      const first = sets[0]
+      const avgWeight = Math.round((sets.reduce((sum, s) => sum + (Number(s.weight) || 0), 0) / sets.length) * 10) / 10
+      details.push({
+        exerciseId: id,
+        exerciseName: first.exercise?.name || 'Ejercicio extra',
+        muscleGroup: first.exercise?.muscle_group || '',
+        setsTarget: 0,
+        setsDone: sets.length,
+        repsTarget: 0,
+        weightTarget: 0,
+        avgWeight,
+        restSeconds: 0,
+        status: 'extra',
+        sets: sets.map(s => ({ reps: s.reps, weight: Number(s.weight) || 0, setNumber: s.set_number })),
+      })
+    }
+  })
+
+  const plannedCount = planned.length
+  const exerciseCompletion = Math.round((exercisesTrained / plannedCount) * 30)
+  const setCompletion = Math.round((totalSetRatio / plannedCount) * 40)
+  const weightAdherence = exercisesWithWeight > 0
+    ? Math.round((totalWeightRatio / exercisesWithWeight) * 30)
+    : 30 // full marks if no weight targets set
+
+  const extraBonus = Math.min(totalExtraSets * 2, 10)
+  const score = exerciseCompletion + setCompletion + weightAdherence + extraBonus
+
+  return {
+    score,
+    exerciseCompletion,
+    setCompletion,
+    weightAdherence,
+    extraSets: totalExtraSets,
+    extraBonus,
+    details,
+  }
 }
 
 // Slope of linear regression (for trend detection)

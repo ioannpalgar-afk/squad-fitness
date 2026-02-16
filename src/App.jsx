@@ -31,7 +31,7 @@ function ProtectedLayout() {
   const userColor = profile?.color || '#00F0FF'
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg">
+    <div className="mx-auto min-h-screen max-w-lg relative">
       <Routes>
         <Route index element={<Dashboard />} />
         <Route path="rutinas" element={<Routines />} />
@@ -44,6 +44,22 @@ function ProtectedLayout() {
         <Route path="progresion" element={<Progression />} />
       </Routes>
       <BottomNav userColor={userColor} />
+
+      {/* Scanlines overlay — CSS puro */}
+      <div
+        className="pointer-events-none fixed inset-0 z-[9999]"
+        style={{
+          background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)',
+        }}
+      />
+
+      {/* Vignette overlay — CSS puro */}
+      <div
+        className="pointer-events-none fixed inset-0 z-[9998]"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%)',
+        }}
+      />
     </div>
   )
 }

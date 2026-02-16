@@ -41,8 +41,15 @@ export default function BadgePopup({ show, onClose, badge }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-6"
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
           onClick={onClose}
+          style={{
+            backgroundImage: "url('/assets/backgrounds/moments/achievement-unlocked.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: 'rgba(10,10,18,0.88)',
+            backgroundBlendMode: 'overlay',
+          }}
         >
           <motion.div
             initial={{ scale: 0.3, opacity: 0 }}

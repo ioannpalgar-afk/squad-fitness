@@ -11,8 +11,15 @@ export default function StreakBrokenModal({ show, onClose, previousStreak = 0 })
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-6"
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
           onClick={onClose}
+          style={{
+            backgroundImage: "url('/assets/backgrounds/moments/streak-broken.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: 'rgba(10,10,18,0.9)',
+            backgroundBlendMode: 'overlay',
+          }}
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}

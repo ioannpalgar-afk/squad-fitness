@@ -104,41 +104,107 @@ export const SET_TYPES = [
   { value: 'failure', label: 'Al fallo' },
 ]
 
-// Badges definidos — con imagen real donde existe
-export const BADGES = [
-  { id: 'first-spark', name: 'Primera Chispa', desc: 'Completa tu primera rutina', tier: 'bronze', icon: '⚡', image: '/assets/badges/badge-primera.png' },
-  { id: 'streak-7', name: 'Racha 7', desc: '7 días consecutivos', tier: 'bronze', icon: '🔥', image: '/assets/badges/badge-racha7.png' },
-  { id: 'streak-30', name: 'Racha 30', desc: '30 días consecutivos', tier: 'silver', icon: '🔥', image: '/assets/badges/badge-racha30.png' },
-  { id: 'streak-100', name: 'Racha 100', desc: '100 días consecutivos', tier: 'gold', icon: '🔥', image: '/assets/badges/badge-racha100.png' },
-  { id: 'squad-goals', name: 'Squad Goals', desc: 'Los 3 completan todo el mismo día', tier: 'gold', icon: '🎉', image: '/assets/badges/badge-los3.png' },
-  { id: 'early-bird', name: 'Madrugador', desc: 'Completar antes de las 7AM', tier: 'gold', icon: '🌅', image: '/assets/badges/badge-7am.png' },
-  { id: 'night-owl', name: 'Búho Nocturno', desc: 'Completar después de las 11PM', tier: 'silver', icon: '🦉', image: '/assets/badges/badge-11pm.png' },
-  { id: 'month-king', name: 'Rey del Mes', desc: 'Más constante del mes', tier: 'gold', icon: '👑', image: '/assets/badges/badge-constante.png' },
-  { id: 'steel-link', name: 'Eslabón de Acero', desc: 'Racha más larga entre los 3', tier: 'silver', icon: '🔗', image: '/assets/badges/badge-rachaLarga.png' },
-  { id: 'perfect-day', name: 'Máquina Perfecta', desc: 'Todas las rutinas en 1 día', tier: 'gold', icon: '💯', image: '/assets/badges/badge-todasEnUnDia.png' },
-  { id: 'new-pr', name: 'Nuevo PR', desc: 'Batir récord personal en gym', tier: 'silver', icon: '🏆' },
-  { id: 'centurion', name: 'Centurión', desc: '100 entrenos registrados', tier: 'gold', icon: '💪' },
-  { id: 'brutal-volume', name: 'Volumen Brutal', desc: '10.000 kg en una semana', tier: 'silver', icon: '🏋️' },
-  { id: 'transformation', name: 'Transformación', desc: 'Perder 5% grasa corporal', tier: 'gold', icon: '🦾' },
+// ============================================
+// BADGES — organizados por categoría
+// ============================================
+
+export const BADGE_CATEGORIES = [
+  { id: 'consistency', name: 'Constancia', desc: 'Recompensas por no fallar ni un día. La constancia es el superpoder.' },
+  { id: 'strength', name: 'Fuerza', desc: 'Cada kilo que subes te acerca a la versión más fuerte de ti mismo.' },
+  { id: 'volume', name: 'Volumen', desc: 'Toneladas movidas. El trabajo acumulado que transforma tu cuerpo.' },
+  { id: 'habits', name: 'Hábitos', desc: 'Los pequeños rituales diarios que construyen grandes resultados.' },
+  { id: 'body', name: 'Cuerpo', desc: 'Tu transformación física medida y documentada.' },
+  { id: 'squad', name: 'Squad', desc: 'Juntos somos más fuertes. Logros compartidos con tu equipo.' },
+  { id: 'explorer', name: 'Explorador', desc: 'Variedad es progreso. Desbloquea nuevos ejercicios y horarios.' },
 ]
 
-// Emojis custom (assets reales)
+export const BADGES = [
+  // === CONSTANCIA ===
+  { id: 'first-spark',    category: 'consistency', name: 'Primera Chispa',      desc: 'Completa tu primer entreno',                tier: 'bronze', image: '/assets/badges/badge-primera.png' },
+  { id: 'streak-3',       category: 'consistency', name: 'Triple Combo',        desc: '3 días consecutivos entrenando',            tier: 'bronze', image: '/assets/badges/badge-racha3.png' },
+  { id: 'streak-7',       category: 'consistency', name: 'Semana de Acero',     desc: '7 días consecutivos sin fallar',            tier: 'bronze', image: '/assets/badges/badge-racha7.png' },
+  { id: 'streak-14',      category: 'consistency', name: 'Quincena Invicta',    desc: '14 días consecutivos',                      tier: 'silver', image: '/assets/badges/badge-racha14.png' },
+  { id: 'streak-30',      category: 'consistency', name: 'Mes de Hierro',       desc: '30 días sin romper la cadena',              tier: 'silver', image: '/assets/badges/badge-racha30.png' },
+  { id: 'streak-60',      category: 'consistency', name: 'Inquebrantable',      desc: '60 días de racha pura',                     tier: 'gold',   image: '/assets/badges/badge-racha60.png' },
+  { id: 'streak-100',     category: 'consistency', name: 'Centurión',           desc: '100 días consecutivos. Leyenda.',           tier: 'gold',   image: '/assets/badges/badge-racha100.png' },
+  { id: 'workouts-10',    category: 'consistency', name: 'En Marcha',           desc: '10 entrenos completados',                   tier: 'bronze', image: '/assets/badges/badge-10entrenos.png' },
+  { id: 'workouts-25',    category: 'consistency', name: 'Cuarto de Siglo',     desc: '25 entrenos completados',                   tier: 'bronze', image: '/assets/badges/badge-25entrenos.png' },
+  { id: 'workouts-50',    category: 'consistency', name: 'Medio Centenar',      desc: '50 entrenos completados',                   tier: 'silver', image: '/assets/badges/badge-50entrenos.png' },
+  { id: 'workouts-100',   category: 'consistency', name: 'Centenario',          desc: '100 entrenos. El gym es tu segunda casa.',  tier: 'gold',   image: '/assets/badges/badge-100entrenos.png' },
+  { id: 'workouts-200',   category: 'consistency', name: 'Doscientos',          desc: '200 entrenos registrados',                  tier: 'gold',   image: '/assets/badges/badge-200entrenos.png' },
+
+  // === FUERZA ===
+  { id: 'first-pr',       category: 'strength', name: 'Primer PR',             desc: 'Tu primer récord personal',                  tier: 'bronze', image: '/assets/badges/badge-primerPR.png' },
+  { id: 'prs-5',          category: 'strength', name: 'Cazador de PRs',        desc: '5 records personales batidos',               tier: 'bronze', image: '/assets/badges/badge-5prs.png' },
+  { id: 'prs-10',         category: 'strength', name: 'Rompe-límites',         desc: '10 records personales',                      tier: 'silver', image: '/assets/badges/badge-10prs.png' },
+  { id: 'prs-25',         category: 'strength', name: 'Máquina de PRs',        desc: '25 records personales. Imparable.',          tier: 'gold',   image: '/assets/badges/badge-25prs.png' },
+  { id: 'bench-60',       category: 'strength', name: 'Club del Plato',        desc: 'Press Banca con 60kg (1 plato por lado)',    tier: 'bronze', image: '/assets/badges/badge-bench60.png' },
+  { id: 'bench-100',      category: 'strength', name: 'Banco Centenario',      desc: 'Press Banca con 100kg',                     tier: 'gold',   image: '/assets/badges/badge-bench100.png' },
+  { id: 'squat-100',      category: 'strength', name: 'Sentadilla 100',        desc: 'Sentadilla con 100kg',                      tier: 'silver', image: '/assets/badges/badge-squat100.png' },
+  { id: 'deadlift-100',   category: 'strength', name: 'Peso Muerto 100',       desc: 'Peso Muerto con 100kg',                     tier: 'silver', image: '/assets/badges/badge-dead100.png' },
+  { id: 'bw-bench',       category: 'strength', name: 'Peso Corporal',         desc: 'Press Banca con tu peso corporal',           tier: 'gold',   image: '/assets/badges/badge-bwBench.png' },
+  { id: 'weight-up',      category: 'strength', name: 'Subida de Peso',        desc: 'Aumentar peso en 5 ejercicios diferentes',   tier: 'bronze', image: '/assets/badges/badge-weightUp.png' },
+  { id: 'weight-up-15',   category: 'strength', name: 'Progresión Constante',  desc: 'Aumentar peso en 15 ejercicios diferentes',  tier: 'silver', image: '/assets/badges/badge-weightUp15.png' },
+
+  // === VOLUMEN ===
+  { id: 'tonnage-1',      category: 'volume', name: 'Primera Tonelada',        desc: '1.000 kg totales movidos',                   tier: 'bronze', image: '/assets/badges/badge-1ton.png' },
+  { id: 'tonnage-5',      category: 'volume', name: '5 Toneladas',             desc: '5.000 kg de volumen total acumulado',        tier: 'bronze', image: '/assets/badges/badge-5ton.png' },
+  { id: 'tonnage-10',     category: 'volume', name: 'Diez Toneladas',          desc: '10.000 kg. Un camión de hierro.',            tier: 'silver', image: '/assets/badges/badge-10ton.png' },
+  { id: 'tonnage-25',     category: 'volume', name: 'Bestia de Carga',         desc: '25.000 kg totales',                          tier: 'silver', image: '/assets/badges/badge-25ton.png' },
+  { id: 'tonnage-50',     category: 'volume', name: 'Medio Centenar',          desc: '50.000 kg. Medio centenar de toneladas.',    tier: 'gold',   image: '/assets/badges/badge-50ton.png' },
+  { id: 'tonnage-100',    category: 'volume', name: 'Club de las 100t',        desc: '100 toneladas totales. Brutal.',             tier: 'gold',   image: '/assets/badges/badge-100ton.png' },
+  { id: 'week-volume',    category: 'volume', name: 'Semana Brutal',           desc: '10.000 kg movidos en una sola semana',       tier: 'silver', image: '/assets/badges/badge-semanaBrutal.png' },
+
+  // === HÁBITOS ===
+  { id: 'perfect-day',    category: 'habits', name: 'Día Perfecto',            desc: 'Completar todos los hábitos en un día',      tier: 'bronze', image: '/assets/badges/badge-diaPerfecto.png' },
+  { id: 'perfect-7',      category: 'habits', name: 'Semana Perfecta',         desc: '7 días perfectos (todos los hábitos)',       tier: 'silver', image: '/assets/badges/badge-semanaPerfecta.png' },
+  { id: 'perfect-30',     category: 'habits', name: 'Mes Perfecto',            desc: '30 días perfectos. Máquina total.',          tier: 'gold',   image: '/assets/badges/badge-mesPerfecto.png' },
+  { id: 'habits-100',     category: 'habits', name: 'Cien Hábitos',            desc: '100 hábitos individuales completados',       tier: 'bronze', image: '/assets/badges/badge-100habitos.png' },
+  { id: 'habits-500',     category: 'habits', name: 'Quinientos',              desc: '500 hábitos completados',                    tier: 'silver', image: '/assets/badges/badge-500habitos.png' },
+  { id: 'habits-1000',    category: 'habits', name: 'Mil Hábitos',             desc: '1.000 hábitos. Disciplina pura.',            tier: 'gold',   image: '/assets/badges/badge-1000habitos.png' },
+
+  // === CUERPO ===
+  { id: 'first-measure',  category: 'body', name: 'Primera Medición',          desc: 'Registra tu primera medición corporal',      tier: 'bronze', image: '/assets/badges/badge-primerMedicion.png' },
+  { id: 'measures-10',    category: 'body', name: 'Control Regular',           desc: '10 mediciones corporales registradas',       tier: 'bronze', image: '/assets/badges/badge-10mediciones.png' },
+  { id: 'measures-25',    category: 'body', name: 'Control Total',             desc: '25 mediciones. Datos = progreso.',           tier: 'silver', image: '/assets/badges/badge-25mediciones.png' },
+  { id: 'fat-loss-3',     category: 'body', name: 'Definición',                desc: 'Bajar 3% de grasa corporal',                tier: 'silver', image: '/assets/badges/badge-definicion.png' },
+  { id: 'fat-loss-5',     category: 'body', name: 'Transformación',            desc: 'Bajar 5% de grasa corporal',                tier: 'gold',   image: '/assets/badges/badge-transformacion.png' },
+  { id: 'muscle-gain-2',  category: 'body', name: 'Masa Muscular',             desc: 'Ganar 2kg de masa muscular',                tier: 'silver', image: '/assets/badges/badge-masaMuscular.png' },
+  { id: 'recomp',         category: 'body', name: 'Recomposición',             desc: 'Ganar músculo y perder grasa a la vez',      tier: 'gold',   image: '/assets/badges/badge-recomp.png' },
+
+  // === SQUAD ===
+  { id: 'squad-goals',    category: 'squad', name: 'Squad Goals',              desc: 'Los 3 completan todo el mismo día',          tier: 'gold',   image: '/assets/badges/badge-los3.png' },
+  { id: 'squad-same-day', category: 'squad', name: 'Día de Hermanos',          desc: 'Los 3 entrenan el mismo día',                tier: 'bronze', image: '/assets/badges/badge-diaHermanos.png' },
+  { id: 'month-king',     category: 'squad', name: 'Rey del Mes',              desc: 'Ser el más constante del mes',               tier: 'gold',   image: '/assets/badges/badge-constante.png' },
+  { id: 'steel-link',     category: 'squad', name: 'Eslabón de Acero',         desc: 'Tener la racha más larga del squad',         tier: 'silver', image: '/assets/badges/badge-rachaLarga.png' },
+  { id: 'xp-leader',      category: 'squad', name: 'Líder XP',                 desc: 'Ser el #1 en XP del squad',                  tier: 'silver', image: '/assets/badges/badge-liderXP.png' },
+
+  // === EXPLORADOR ===
+  { id: 'exercises-5',    category: 'explorer', name: 'Curioso',               desc: 'Probar 5 ejercicios diferentes',             tier: 'bronze', image: '/assets/badges/badge-5ejercicios.png' },
+  { id: 'exercises-15',   category: 'explorer', name: 'Explorador',            desc: 'Probar 15 ejercicios diferentes',            tier: 'silver', image: '/assets/badges/badge-15ejercicios.png' },
+  { id: 'exercises-30',   category: 'explorer', name: 'Maestro del Hierro',    desc: 'Probar 30+ ejercicios. Lo has hecho todo.',  tier: 'gold',   image: '/assets/badges/badge-30ejercicios.png' },
+  { id: 'early-bird',     category: 'explorer', name: 'Madrugador',            desc: 'Entrenar antes de las 7:00 AM',              tier: 'silver', image: '/assets/badges/badge-7am.png' },
+  { id: 'night-owl',      category: 'explorer', name: 'Búho Nocturno',         desc: 'Entrenar después de las 22:00',              tier: 'silver', image: '/assets/badges/badge-11pm.png' },
+  { id: 'weekend-warrior',category: 'explorer', name: 'Guerrero del Finde',    desc: 'Entrenar sábado Y domingo',                  tier: 'bronze', image: '/assets/badges/badge-finde.png' },
+]
+
+// Emojis nativos (reemplazan los PNG con fondo)
 export const EMOJI_ASSETS = {
-  fire: '/assets/emojis/emoji-fire.png',
-  bicep: '/assets/emojis/emoji-bicep.png',
-  trophy: '/assets/emojis/emoji-trophy.png',
-  lightning: '/assets/emojis/emoji-lightning.png',
-  skull: '/assets/emojis/emoji-skull.png',
-  sleep: '/assets/emojis/emoji-sleep.png',
-  eyes: '/assets/emojis/emoji-eyes.png',
-  clap: '/assets/emojis/emoji-clap.png',
-  party: '/assets/emojis/emoji-party.png',
-  chain: '/assets/emojis/emoji-chain.png',
-  calendar: '/assets/emojis/emoji-calendar.png',
-  brain: '/assets/emojis/emoji-brain.png',
-  ice: '/assets/emojis/emoji-ice.png',
-  stopwatch: '/assets/emojis/emoji-stopwatch.png',
-  thumbsup: '/assets/emojis/emoji-thumbsup.png',
+  fire: '🔥',
+  bicep: '💪',
+  trophy: '🏆',
+  lightning: '⚡',
+  skull: '💀',
+  sleep: '😴',
+  eyes: '👀',
+  clap: '👏',
+  party: '🎉',
+  chain: '🔗',
+  calendar: '📅',
+  brain: '🧠',
+  ice: '🧊',
+  stopwatch: '⏱️',
+  thumbsup: '👍',
 }
 
 // Iconos de categoría para hábitos
@@ -159,14 +225,14 @@ export const CATEGORY_ICONS = {
 
 // Escenas ilustradas
 export const ESCENAS = {
-  celebrando: '/assets/escenas/escena-celebrando.png',
-  emptyState: '/assets/escenas/escena-emptyState.png',
-  mesPerfecto: '/assets/escenas/escena-mesPerfecto.png',
-  onboarding: '/assets/escenas/escena-onboarding.png',
-  podio: '/assets/escenas/escena-podio.png',
-  progreso: '/assets/escenas/escena-progreso.png',
-  rachaRota: '/assets/escenas/escena-rachaRota.png',
-  squad: '/assets/escenas/escena-squad.png',
+  celebrando: '/assets/illustrations/escena-celebrando.png',
+  emptyState: '/assets/illustrations/escena-emptyState.png',
+  mesPerfecto: '/assets/illustrations/escena-mesPerfecto.png',
+  onboarding: '/assets/illustrations/escena-onboarding.png',
+  podio: '/assets/illustrations/escena-podio.png',
+  progreso: '/assets/illustrations/escena-progreso.png',
+  rachaRota: '/assets/illustrations/escena-rachaRota.png',
+  squad: '/assets/illustrations/escena-squad.png',
 }
 
 export const TIER_COLORS = {

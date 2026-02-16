@@ -42,7 +42,7 @@ export default function Login() {
       {/* Hero background */}
       <div className="absolute inset-0">
         <img
-          src="/assets/backgrounds/bg-heroBanner.png"
+          src="/assets/backgrounds/heroes/neon-city.png"
           alt=""
           className="h-full w-full object-cover opacity-40"
         />
@@ -60,7 +60,7 @@ export default function Login() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            src="/assets/escenas/escena-onboarding.png"
+            src="/assets/illustrations/escena-onboarding.png"
             alt="Squad Fitness"
             className="mx-auto mb-4 h-40 w-auto object-contain drop-shadow-2xl"
           />

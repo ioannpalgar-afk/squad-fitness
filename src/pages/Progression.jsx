@@ -1,13 +1,28 @@
 import { useState } from 'react'
 import { useGamification, useSquadGamification } from '../hooks/useGamification'
 import { useAuth } from '../contexts/AuthContext'
-import { motion } from 'framer-motion'
-import { ChevronLeft, Trophy, Zap, Target, TrendingUp, Star } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronLeft, Trophy, Zap, Target, TrendingUp, Star, ChevronDown, Info } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import PageWrapper from '../components/layout/PageWrapper'
 import AvatarWithMood from '../components/avatar/AvatarWithMood'
-import { RANKS, getRankForLevel } from '../data/constants'
+import BadgeCard from '../components/badges/BadgeCard'
+import { RANKS, BADGES, BADGE_CATEGORIES, TIER_COLORS, EMOJI_ASSETS } from '../data/constants'
 import { xpForLevel } from '../utils/calculations'
+
+const XP_SOURCES = [
+  { action: 'Completar un entreno', xp: 100, icon: '🏋️' },
+  { action: 'Completar un hábito', xp: 20, icon: '✅' },
+  { action: 'Día perfecto (todos los hábitos)', xp: 50, icon: '⭐' },
+  { action: 'Nuevo récord personal', xp: 200, icon: '🏆' },
+  { action: 'Ejercicio nuevo desbloqueado', xp: 75, icon: '🔓' },
+  { action: 'Medición corporal registrada', xp: 30, icon: '📏' },
+  { action: 'Incrementar peso en un ejercicio', xp: 50, icon: '📈' },
+  { action: 'Cada 5 toneladas acumuladas', xp: 100, icon: '💪' },
+  { action: 'Racha de 7 días', xp: 300, icon: '🔥' },
+  { action: 'Racha de 30 días', xp: 1000, icon: '💎' },
+  { action: 'Racha de 100 días', xp: 3000, icon: '👑' },
+]
 
 export default function Progression() {
   const navigate = useNavigate()
@@ -15,6 +30,8 @@ export default function Progression() {
   const { stats, loading } = useGamification()
   const { squadStats, loading: squadLoading } = useSquadGamification()
   const [showAllMilestones, setShowAllMilestones] = useState(false)
+  const [showPointSystem, setShowPointSystem] = useState(false)
+  const [expandedCategory, setExpandedCategory] = useState(null)
 
   const userColor = profile?.color || '#00F0FF'
 
@@ -28,10 +45,12 @@ export default function Progression() {
 
   if (!stats) return null
 
-  const { xp, level, progress, rank, nextLevelXP, currentLevelXP, breakdown, milestones, rawStats } = stats
+  const { xp, level, progress, rank, nextLevelXP, breakdown, milestones, rawStats, unlockedBadges } = stats
   const completedMilestones = milestones.filter(m => m.completed)
   const pendingMilestones = milestones.filter(m => !m.completed)
   const displayMilestones = showAllMilestones ? pendingMilestones : pendingMilestones.slice(0, 4)
+  const totalBadges = BADGES.length
+  const unlockedCount = unlockedBadges?.size || 0
 
   return (
     <PageWrapper>
@@ -41,6 +60,10 @@ export default function Progression() {
           <ChevronLeft size={20} />
         </button>
         <h1 className="font-display text-lg font-bold uppercase tracking-wider">Progresión</h1>
+        <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold"
+          style={{ background: `${userColor}22`, color: userColor }}>
+          {unlockedCount}/{totalBadges} badges
+        </span>
       </div>
 
       {/* Level hero card */}
@@ -53,6 +76,15 @@ export default function Progression() {
           boxShadow: `0 0 40px ${rank.color}33`,
         }}
       >
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/assets/backgrounds/heroes/digital-mountain.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.15,
+          }}
+        />
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.5)' }} />
         <div className="relative z-10 text-center">
           <motion.div
@@ -83,6 +115,133 @@ export default function Progression() {
           </div>
         </div>
       </motion.div>
+
+      {/* Point System Explainer */}
+      <section className="mb-8">
+        <button
+          onClick={() => setShowPointSystem(!showPointSystem)}
+          className="mb-3 flex w-full items-center gap-2"
+        >
+          <Info size={16} style={{ color: '#FDCB6E' }} />
+          <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">
+            Sistema de puntos
+          </h2>
+          <ChevronDown
+            size={14}
+            className="ml-auto text-text-muted transition-transform"
+            style={{ transform: showPointSystem ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          />
+        </button>
+        <AnimatePresence>
+          {showPointSystem && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <p className="mb-3 text-xs text-text-secondary">
+                Cada acción que realizas suma XP. Acumula XP para subir de nivel y desbloquear rangos.
+                Los badges se desbloquean al cumplir retos específicos.
+              </p>
+              <div className="space-y-1">
+                {XP_SOURCES.map(s => (
+                  <div key={s.action} className="flex items-center gap-2 rounded-lg px-3 py-2"
+                    style={{ background: '#14141F', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span className="text-sm">{s.icon}</span>
+                    <span className="flex-1 text-[11px] text-text-secondary">{s.action}</span>
+                    <span className="font-mono text-[11px] font-bold" style={{ color: userColor }}>+{s.xp} XP</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      {/* Badges by Category */}
+      <section className="mb-8">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-sm">{EMOJI_ASSETS.trophy}</span>
+          <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">
+            Badges ({unlockedCount}/{totalBadges})
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          {BADGE_CATEGORIES.map(cat => {
+            const catBadges = BADGES.filter(b => b.category === cat.id)
+            const catUnlocked = catBadges.filter(b => unlockedBadges?.has(b.id)).length
+            const isExpanded = expandedCategory === cat.id
+
+            return (
+              <div key={cat.id}>
+                <button
+                  onClick={() => setExpandedCategory(isExpanded ? null : cat.id)}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition"
+                  style={{
+                    background: isExpanded ? `${userColor}08` : '#14141F',
+                    border: isExpanded ? `1px solid ${userColor}22` : '1px solid rgba(255,255,255,0.04)',
+                  }}
+                >
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-bold">{cat.name}</p>
+                      <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+                        style={{
+                          background: catUnlocked === catBadges.length ? `${userColor}22` : '#252538',
+                          color: catUnlocked === catBadges.length ? userColor : '#8888A0',
+                        }}>
+                        {catUnlocked}/{catBadges.length}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[10px] text-text-muted">{cat.desc}</p>
+                  </div>
+                  {/* Mini progress */}
+                  <div className="flex gap-0.5">
+                    {catBadges.map(b => (
+                      <div key={b.id} className="h-1.5 w-1.5 rounded-full"
+                        style={{
+                          backgroundColor: unlockedBadges?.has(b.id)
+                            ? TIER_COLORS[b.tier].bg
+                            : 'rgba(255,255,255,0.08)',
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <ChevronDown
+                    size={14}
+                    className="text-text-muted transition-transform"
+                    style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="grid grid-cols-3 gap-2 pt-2">
+                        {catBadges.map((badge, i) => (
+                          <BadgeCard
+                            key={badge.id}
+                            badge={badge}
+                            unlocked={unlockedBadges?.has(badge.id)}
+                            delay={i * 0.04}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )
+          })}
+        </div>
+      </section>
 
       {/* Squad levels comparison */}
       {!squadLoading && squadStats.length > 0 && (
@@ -140,7 +299,7 @@ export default function Progression() {
         <div className="mb-3 flex items-center gap-2">
           <Zap size={16} style={{ color: userColor }} />
           <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">
-            Fuentes de XP
+            Tu XP acumulado
           </h2>
         </div>
         <div className="space-y-1.5">

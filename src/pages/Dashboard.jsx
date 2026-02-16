@@ -109,10 +109,8 @@ export default function Dashboard() {
           className="mb-5 flex items-center justify-center gap-3 rounded-xl py-3"
           style={{
             background: `linear-gradient(135deg, ${userColor}08, ${userColor}03)`,
-            border: `1px solid ${userColor}22`,
           }}
         >
-          <img src="/assets/ui/ui-streakBadge.png" alt="" className="h-10 w-auto object-contain" />
           <StreakCounter count={streak} color={userColor} size="md" />
         </motion.div>
       )}
@@ -121,7 +119,7 @@ export default function Dashboard() {
       <section className="mb-6">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={EMOJI_ASSETS.fire} alt="" className="h-4 w-4 object-contain" />
+            <span className="text-sm">{EMOJI_ASSETS.fire}</span>
             <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">Hoy</h2>
             {totalToday > 0 && (
               <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{
@@ -178,7 +176,7 @@ export default function Dashboard() {
               className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3"
               style={{ background: `${userColor}10`, border: `1px solid ${userColor}22` }}
             >
-              <img src={EMOJI_ASSETS.party} alt="" className="h-6 w-6 object-contain" />
+              <span className="text-lg">{EMOJI_ASSETS.party}</span>
               <p className="text-xs font-medium" style={{ color: userColor }}>{allDoneMessage}</p>
             </motion.div>
           )}
@@ -262,7 +260,7 @@ export default function Dashboard() {
       {squadTaunts.length > 0 && (
         <section className="mb-6">
           <div className="mb-2 flex items-center gap-2">
-            <img src={EMOJI_ASSETS.eyes} alt="" className="h-4 w-4 object-contain" />
+            <span className="text-sm">{EMOJI_ASSETS.eyes}</span>
             <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">Desaparecidos</h2>
           </div>
           <div className="space-y-1.5">
@@ -278,7 +276,7 @@ export default function Dashboard() {
                 <p className="flex-1 text-xs text-text-secondary">
                   {TAUNT_MESSAGES[t.key]?.replace('{name}', t.name)}
                 </p>
-                <img src={EMOJI_ASSETS.skull} alt="" className="h-5 w-5 object-contain opacity-60" />
+                <span className="text-base opacity-60">{EMOJI_ASSETS.skull}</span>
               </motion.div>
             ))}
           </div>

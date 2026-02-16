@@ -28,7 +28,7 @@ export default function History() {
         <div className="card animate-pulse py-12 text-center text-sm text-text-muted">Cargando...</div>
       ) : completedSessions.length === 0 ? (
         <div className="card py-8 text-center">
-          <img src="/assets/escenas/escena-emptyState.png" alt="" className="mx-auto mb-3 h-28 w-auto object-contain opacity-80" />
+          <img src="/assets/illustrations/escena-emptyState.png" alt="" className="mx-auto mb-3 h-28 w-auto object-contain opacity-80" />
           <p className="text-sm text-text-muted">Sin entrenamientos registrados</p>
           <p className="text-xs text-text-muted">Empieza a entrenar para ver tu historial</p>
         </div>

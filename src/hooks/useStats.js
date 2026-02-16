@@ -11,6 +11,7 @@ export function useStats() {
   const [weeklyVolume, setWeeklyVolume] = useState([])
   const [personalRecords, setPersonalRecords] = useState([])
   const [muscleGroupVolume, setMuscleGroupVolume] = useState([])
+  const [exerciseWeeklyVolume, setExerciseWeeklyVolume] = useState([])
   const [e1rmProgress, setE1rmProgress] = useState([])
   const [trainingFrequency, setTrainingFrequency] = useState([])
   const [totalStats, setTotalStats] = useState({ sessions: 0, sets: 0, tonnage: 0, avgDuration: 0 })
@@ -42,16 +43,18 @@ export function useStats() {
       sets.forEach(set => {
         const name = set.exercise?.name
         if (!name || !set.weight) return
-        const date = format(new Date(set.session.started_at), 'dd/MM', { locale: es })
+        const sessionDate = new Date(set.session.started_at)
+        const date = format(sessionDate, 'dd/MM', { locale: es })
+        const rawDate = sessionDate.toISOString()
         if (!progressMap[name]) progressMap[name] = {}
-        if (!progressMap[name][date] || set.weight > progressMap[name][date]) {
-          progressMap[name][date] = Number(set.weight)
+        if (!progressMap[name][date] || set.weight > progressMap[name][date].weight) {
+          progressMap[name][date] = { weight: Number(set.weight), rawDate }
         }
       })
       setExerciseProgress(
         Object.entries(progressMap).map(([exercise, dates]) => ({
           exercise,
-          data: Object.entries(dates).map(([date, weight]) => ({ date, weight })),
+          data: Object.entries(dates).map(([date, { weight, rawDate }]) => ({ date, rawDate, weight })),
         }))
       )
 
@@ -60,27 +63,31 @@ export function useStats() {
       sets.forEach(set => {
         const name = set.exercise?.name
         if (!name || !set.weight || !set.reps) return
-        const date = format(new Date(set.session.started_at), 'dd/MM', { locale: es })
+        const sessionDate = new Date(set.session.started_at)
+        const date = format(sessionDate, 'dd/MM', { locale: es })
+        const rawDate = sessionDate.toISOString()
         const e1rm = bestEstimate1RM(Number(set.weight), set.reps)
         if (!e1rmMap[name]) e1rmMap[name] = {}
-        if (!e1rmMap[name][date] || e1rm > e1rmMap[name][date]) {
-          e1rmMap[name][date] = e1rm
+        if (!e1rmMap[name][date] || e1rm > e1rmMap[name][date].e1rm) {
+          e1rmMap[name][date] = { e1rm, rawDate }
         }
       })
       setE1rmProgress(
         Object.entries(e1rmMap).map(([exercise, dates]) => ({
           exercise,
-          data: Object.entries(dates).map(([date, e1rm]) => ({ date, e1rm })),
+          data: Object.entries(dates).map(([date, { e1rm, rawDate }]) => ({ date, rawDate, e1rm })),
         }))
       )
 
       // ====== WEEKLY VOLUME ======
       const volumeMap = {}
+      const rawDateMap = {}
       const now = new Date()
       for (let i = 7; i >= 0; i--) {
         const weekStart = startOfWeek(subWeeks(now, i), { weekStartsOn: 1 })
         const key = format(weekStart, 'dd/MM', { locale: es })
         volumeMap[key] = 0
+        rawDateMap[key] = weekStart.toISOString()
       }
       sets.forEach(set => {
         if (!set.weight || !set.reps) return
@@ -91,23 +98,34 @@ export function useStats() {
         }
       })
       setWeeklyVolume(
-        Object.entries(volumeMap).map(([week, volume]) => ({ week, volume: Math.round(volume) }))
+        Object.entries(volumeMap).map(([week, volume]) => ({ week, rawDate: rawDateMap[week], volume: Math.round(volume) }))
       )
 
       // ====== MUSCLE GROUP VOLUME (weekly sets per muscle group) ======
       const mgMap = {}
+      const exVolMap = {}
       const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 })
       sets.forEach(set => {
         const group = set.exercise?.muscle_group
+        const name = set.exercise?.name
         if (!group) return
         const setDate = new Date(set.session.started_at)
         if (differenceInDays(now, setDate) <= 7) {
           mgMap[group] = (mgMap[group] || 0) + 1
+          if (name) {
+            if (!exVolMap[name]) exVolMap[name] = { sets: 0, muscleGroup: group }
+            exVolMap[name].sets += 1
+          }
         }
       })
       setMuscleGroupVolume(
         Object.entries(mgMap)
           .map(([muscle, sets]) => ({ muscle, sets }))
+          .sort((a, b) => b.sets - a.sets)
+      )
+      setExerciseWeeklyVolume(
+        Object.entries(exVolMap)
+          .map(([exercise, data]) => ({ exercise, sets: data.sets, muscleGroup: data.muscleGroup }))
           .sort((a, b) => b.sets - a.sets)
       )
 
@@ -180,7 +198,7 @@ export function useStats() {
 
   return {
     exerciseProgress, weeklyVolume, personalRecords,
-    muscleGroupVolume, e1rmProgress, trainingFrequency, totalStats,
+    muscleGroupVolume, exerciseWeeklyVolume, e1rmProgress, trainingFrequency, totalStats,
     loading,
   }
 }

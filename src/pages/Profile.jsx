@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useWorkouts } from '../hooks/useWorkouts'
 import { useHabits } from '../hooks/useHabits'
@@ -11,7 +10,7 @@ import AvatarWithMood from '../components/avatar/AvatarWithMood'
 import BadgeCard from '../components/badges/BadgeCard'
 import StreakCounter from '../components/ui/StreakCounter'
 import PageWrapper from '../components/layout/PageWrapper'
-import { BADGES, EMOJI_ASSETS } from '../data/constants'
+import { BADGES, BADGE_CATEGORIES, EMOJI_ASSETS } from '../data/constants'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -26,17 +25,16 @@ export default function Profile() {
   const totalSets = sessions.reduce((sum, s) => sum + (s.session_sets?.length || 0), 0)
   const prCount = personalRecords?.length || 0
 
-  // Determine which badges are unlocked based on actual data
-  const unlockedBadges = useMemo(() => {
-    const unlocked = new Set()
-    if (totalWorkouts >= 1) unlocked.add('first-spark')
-    if (streak >= 7) unlocked.add('streak-7')
-    if (streak >= 30) unlocked.add('streak-30')
-    if (streak >= 100) unlocked.add('streak-100')
-    if (totalWorkouts >= 100) unlocked.add('centurion')
-    if (prCount > 0) unlocked.add('new-pr')
-    return unlocked
-  }, [totalWorkouts, streak, prCount])
+  const unlockedBadges = gamification?.unlockedBadges || new Set()
+  const unlockedCount = unlockedBadges.size
+  const totalBadgeCount = BADGES.length
+
+  // Show recently unlocked badges (up to 6, prioritize gold > silver > bronze)
+  const tierOrder = { gold: 0, silver: 1, bronze: 2 }
+  const recentUnlocked = BADGES
+    .filter(b => unlockedBadges.has(b.id))
+    .sort((a, b) => (tierOrder[a.tier] ?? 3) - (tierOrder[b.tier] ?? 3))
+    .slice(0, 6)
 
   return (
     <PageWrapper>
@@ -115,7 +113,7 @@ export default function Profile() {
         ].map(({ icon: Icon, value, label, color, customIcon }) => (
           <div key={label} className="card py-3 text-center">
             {customIcon ? (
-              <img src={customIcon} alt="" className="mx-auto mb-1 h-5 w-5 object-contain" />
+              <span className="mx-auto mb-1 block text-base">{customIcon}</span>
             ) : (
               <Icon size={16} className="mx-auto mb-1" style={{ color }} />
             )}
@@ -125,30 +123,43 @@ export default function Profile() {
         ))}
       </div>
 
-      {/* Badges */}
+      {/* Badges preview */}
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={EMOJI_ASSETS.trophy} alt="" className="h-5 w-5 object-contain" />
+            <span className="text-base">{EMOJI_ASSETS.trophy}</span>
             <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">Badges</h2>
           </div>
-          <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{
-            background: `${userColor}22`,
-            color: userColor,
-          }}>
-            {unlockedBadges.size}/{BADGES.length}
-          </span>
+          <button
+            onClick={() => navigate('/progresion')}
+            className="flex items-center gap-1 text-[10px] font-semibold"
+            style={{ color: userColor }}
+          >
+            {unlockedCount}/{totalBadgeCount} - Ver todo <ChevronRight size={12} />
+          </button>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          {BADGES.map((badge, i) => (
-            <BadgeCard
-              key={badge.id}
-              badge={badge}
-              unlocked={unlockedBadges.has(badge.id)}
-              delay={i * 0.03}
-            />
-          ))}
-        </div>
+
+        {recentUnlocked.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2">
+            {recentUnlocked.map((badge, i) => (
+              <BadgeCard
+                key={badge.id}
+                badge={badge}
+                unlocked={true}
+                delay={i * 0.03}
+              />
+            ))}
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate('/progresion')}
+            className="w-full rounded-xl border border-dashed py-6 text-center transition"
+            style={{ borderColor: `${userColor}33`, background: `${userColor}05` }}
+          >
+            <p className="text-xs text-text-muted">Completa retos para desbloquear badges</p>
+            <p className="mt-1 text-xs font-semibold" style={{ color: userColor }}>Ver todos los badges</p>
+          </button>
+        )}
       </section>
 
       {/* Settings / Logout */}

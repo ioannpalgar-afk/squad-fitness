@@ -3,15 +3,17 @@ import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { Trophy, Users, BarChart3, Zap, Scale, TrendingUp } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { formatDistanceToNow, format } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import AvatarWithMood from '../components/avatar/AvatarWithMood'
 import LeaderboardRow from '../components/squad/LeaderboardRow'
+import WorkoutDetailCard from '../components/squad/WorkoutDetailCard'
+import MemberProfileModal from '../components/squad/MemberProfileModal'
 import PageWrapper from '../components/layout/PageWrapper'
-import { ESCENAS } from '../data/constants'
+import { ESCENAS, EMOJI_ASSETS } from '../data/constants'
 import { useSquadGamification } from '../hooks/useGamification'
 import { useSquadBodyHistory } from '../hooks/useBodyMetrics'
 import { bestEstimate1RM } from '../utils/calculations'
@@ -46,6 +48,7 @@ export default function Squad() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('ranking')
   const [compareMetric, setCompareMetric] = useState('weight')
+  const [selectedMember, setSelectedMember] = useState(null)
 
   const { squadStats, loading: gamLoading } = useSquadGamification()
   const { squadHistory, loading: histLoading } = useSquadBodyHistory()
@@ -58,7 +61,21 @@ export default function Squad() {
 
       const { data: sessions } = await supabase
         .from('workout_sessions')
-        .select('*, profile:profiles(name, color), routine:routines(name)')
+        .select(`
+          *,
+          profile:profiles(name, color),
+          routine:routines(
+            name,
+            routine_exercises(
+              exercise_id, sets_target, reps_target, weight_target, rest_seconds, sort_order,
+              exercise:exercises(name, muscle_group)
+            )
+          ),
+          session_sets(
+            exercise_id, set_number, reps, weight, set_type,
+            exercise:exercises(name, muscle_group)
+          )
+        `)
         .not('finished_at', 'is', null)
         .order('finished_at', { ascending: false })
         .limit(20)
@@ -247,7 +264,7 @@ export default function Squad() {
               {/* Leaderboard */}
               <section className="mb-8">
                 <div className="mb-3 flex items-center gap-2">
-                  <img src="/assets/emojis/emoji-trophy.png" alt="" className="h-5 w-5 object-contain" />
+                  <span className="text-base">{EMOJI_ASSETS.trophy}</span>
                   <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">Ranking semanal</h2>
                 </div>
                 <div className="space-y-2">
@@ -309,7 +326,7 @@ export default function Squad() {
               {/* Activity feed */}
               <section>
                 <div className="mb-3 flex items-center gap-2">
-                  <img src="/assets/emojis/emoji-lightning.png" alt="" className="h-5 w-5 object-contain" />
+                  <span className="text-base">{EMOJI_ASSETS.lightning}</span>
                   <h2 className="font-display text-xs uppercase tracking-[0.2em] text-text-secondary">Actividad reciente</h2>
                 </div>
                 {recentActivity.length === 0 ? (
@@ -320,27 +337,13 @@ export default function Squad() {
                 ) : (
                   <div className="space-y-1">
                     {recentActivity.slice(0, 10).map((a, i) => (
-                      <motion.div
+                      <WorkoutDetailCard
                         key={a.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.03 }}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition hover:bg-bg-secondary"
-                        style={{ borderLeft: `2px solid ${a.profile?.color || '#555568'}` }}
-                      >
-                        <AvatarWithMood name={a.profile?.name} color={a.profile?.color || '#00F0FF'} avatarBase={a.profile?.name?.toLowerCase()} size="sm" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm">
-                            <span className="font-semibold">{a.profile?.name}</span>
-                            {' entrenó '}
-                            <span style={{ color: a.profile?.color || '#00F0FF' }}>{a.routine?.name || 'libre'}</span>
-                          </p>
-                          <p className="text-[10px] text-text-muted">
-                            {formatDistanceToNow(new Date(a.finished_at), { addSuffix: true, locale: es })}
-                            {a.duration_minutes && ` · ${a.duration_minutes} min`}
-                          </p>
-                        </div>
-                      </motion.div>
+                        session={a}
+                        userColor={userColor}
+                        isCurrentUser={a.user_id === user?.id}
+                        delay={i}
+                      />
                     ))}
                   </div>
                 )}
@@ -356,12 +359,14 @@ export default function Squad() {
                   const stats = memberStats[member.id]
                   const gamStats = squadStats?.find(s => s.id === member.id)
                   return (
-                    <motion.div
+                    <motion.button
                       key={member.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="overflow-hidden rounded-2xl"
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setSelectedMember(member)}
+                      className="w-full overflow-hidden rounded-2xl text-left"
                       style={{ background: '#14141F', border: `1px solid ${member.color}22` }}
                     >
                       {/* Member header */}
@@ -428,7 +433,7 @@ export default function Squad() {
                           )}
                         </div>
                       )}
-                    </motion.div>
+                    </motion.button>
                   )
                 })}
               </div>
@@ -548,6 +553,17 @@ export default function Squad() {
             </>
           )}
         </>
+      )}
+
+      {/* Member profile modal */}
+      {selectedMember && (
+        <MemberProfileModal
+          member={selectedMember}
+          stats={memberStats[selectedMember.id]}
+          gamStats={squadStats?.find(s => s.id === selectedMember.id)}
+          recentSessions={recentActivity.filter(a => a.user_id === selectedMember.id).slice(0, 5)}
+          onClose={() => setSelectedMember(null)}
+        />
       )}
     </PageWrapper>
   )
